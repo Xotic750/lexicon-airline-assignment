@@ -28,6 +28,10 @@ import static java.lang.Double.parseDouble;
 import static java.lang.System.out;
 import java.math.BigDecimal;
 import static java.math.BigDecimal.ROUND_UP;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
@@ -245,6 +249,17 @@ public class GeneralUtils {
         println();
         println(obj);
         println();
+    }
+
+    /**
+     * Converts a {@link LocalDateTime} to a {@link Date}
+     *
+     * @param localDateTime The {@link LocalDateTime} to convert
+     * @return The {@link Date}
+     */
+    public static Date dateFromLocalDateTime(LocalDateTime localDateTime) {
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        return Date.from(instant);
     }
 
     private GeneralUtils() {

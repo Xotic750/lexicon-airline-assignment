@@ -23,6 +23,7 @@
  */
 package assignment;
 
+import static assignment.GeneralUtils.dateFromLocalDateTime;
 import static assignment.GeneralUtils.println;
 import static assignment.GeneralUtils.requireNotEmpty;
 import static assignment.ProductClassTypes.ECONOMY;
@@ -31,6 +32,8 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import static java.util.Objects.requireNonNull;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -41,6 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Flight extends AccountableObject implements Serializable {
 
     private final String flightNumber;
+    private final Airline airline;
     private final Aircraft aircraft;
     private final LocalDateTime departureDateTime;
     private final LocalDateTime arrivalDateTime;
@@ -51,36 +55,63 @@ public class Flight extends AccountableObject implements Serializable {
     private final Price economyClassPrice;
     private final AtomicReference<FlightStatusTypes> status;
     private final Seats seats;
+    private int nextSeatNumber;
 
-    /**
-     * Called during construction of a flight to initialise the seats as per the
-     * aircraft definition.
-     *
-     * @param flight The flight
-     * @param nextSeatNumber The next seat number to use during allocation
-     * @param productType The {@link ProductClassTypes}
-     */
-    private static int addSeats(Flight flight, int nextSeatNumber, ProductClassTypes productType) {
-        for (int index = 0; index < flight.aircraft.getFirstClassSeatCount(); index++) {
-            flight.seats.add(new Seat(flight.aircraft, nextSeatNumber++, productType));
+    private class DepartureTask extends TimerTask {
+
+        @Override
+        public void run() {
+            println("DEPARTURE: " + flightNumber);
+            airline.getBookings().confirmed().filter(b -> b.getFlight().getFlightNumber().equals(flightNumber)).stream().forEach(b -> b.setStatus(BookingStatusTypes.ClOSED));
+            status.set(FlightStatusTypes.DEPARTED);
         }
-        return nextSeatNumber;
+
+    }
+
+    private class ArrivalTask extends TimerTask {
+
+        @Override
+        public void run() {
+            println("ARRIVAL: " + flightNumber);
+            status.set(FlightStatusTypes.CLOSED);
+        }
+
+    }
+
+    private void departureTask(LocalDateTime departureDateTime) {
+        // creating timer task, timer
+        TimerTask tasknew = new DepartureTask();
+        // daemonized timer
+        Timer timer = new Timer(true);
+        // scheduling the task
+        timer.schedule(tasknew, dateFromLocalDateTime(departureDateTime));
+    }
+
+    private void arrivalTask(LocalDateTime arrivalDateTime) {
+        // creating timer task, timer
+        TimerTask tasknew = new ArrivalTask();
+        // daemonized timer
+        Timer timer = new Timer(true);
+        // scheduling the task
+        timer.schedule(tasknew, dateFromLocalDateTime(arrivalDateTime));
     }
 
     /**
      * Allocates a <code>Flight</code> object and initialises it.
      *
-     * @param flightNumber
-     * @param aircraft
-     * @param departureDateTime
-     * @param from
-     * @param to
-     * @param duration
-     * @param firstClassPrice
-     * @param economyClassPrice
+     * @param flightNumber The flight number
+     * @param airline The airline
+     * @param aircraft The aircraft
+     * @param departureDateTime The departure date and time
+     * @param from The departure airport
+     * @param to the arrival airport
+     * @param duration The duration of the flight
+     * @param firstClassPrice The price of a first class seat
+     * @param economyClassPrice The price of an economy class seat
      */
-    public Flight(String flightNumber, Aircraft aircraft, LocalDateTime departureDateTime, Airport from, Airport to, Duration duration, Price firstClassPrice, Price economyClassPrice) {
+    public Flight(String flightNumber, Airline airline, Aircraft aircraft, LocalDateTime departureDateTime, Airport from, Airport to, Duration duration, Price firstClassPrice, Price economyClassPrice) {
         this.flightNumber = requireNotEmpty(flightNumber);
+        this.airline = requireNonNull(airline);
         this.aircraft = requireNonNull(aircraft);
         this.departureDateTime = requireNonNull(departureDateTime);
         this.from = requireNonNull(from);
@@ -90,10 +121,25 @@ public class Flight extends AccountableObject implements Serializable {
         this.firstClassPrice = requireNonNull(firstClassPrice);
         this.economyClassPrice = requireNonNull(economyClassPrice);
         this.seats = new Seats();
-        int nextSeatNumber = 1;
-        nextSeatNumber = addSeats(this, nextSeatNumber, FIRST);
-        addSeats(this, nextSeatNumber, ECONOMY);
+        nextSeatNumber = 1;
+        addSeats(FIRST, aircraft.getFirstClassSeatCount());
+        addSeats(ECONOMY, aircraft.getEconomyClassSeatCount());
         this.status = new AtomicReference<>(FlightStatusTypes.OPEN);
+        departureTask(departureDateTime);
+        arrivalTask(arrivalDateTime);
+    }
+
+    /**
+     * Called during construction of a flight to initialise the seats as per the
+     * aircraft definition.
+     *
+     * @param productType The {@link ProductClassTypes}
+     * @param seaCount The number of seat of {@code productType]
+     */
+    private void addSeats(ProductClassTypes productType, int seatCount) {
+        for (int index = 0; index < seatCount; index++) {
+            this.seats.add(new Seat(this.aircraft, nextSeatNumber++, productType));
+        }
     }
 
     /**

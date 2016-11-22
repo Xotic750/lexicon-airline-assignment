@@ -250,13 +250,13 @@ public class Data implements Serializable {
         // Flight1
         String flightNumber = "SL1";
         aircraft = airline1.getAircrafts().getByName("QJ1");
-        LocalDateTime departureDate = LocalDateTime.now().plusMinutes(60);
+        LocalDateTime departureDate = LocalDateTime.now().plusMinutes(1);
         Airport from = AIRPORTS.getByName("Stockholm");
         Airport to = AIRPORTS.getByName("London");
-        Duration duration = Duration.ofMinutes(150);
+        Duration duration = Duration.ofMinutes(1);
         Price firstClassPrice = new Price("20000");
         Price economyClassPrice = new Price("5000");
-        Flight flight = new Flight(flightNumber, aircraft, departureDate, from, to, duration, firstClassPrice, economyClassPrice);
+        Flight flight = new Flight(flightNumber, airline1, aircraft, departureDate, from, to, duration, firstClassPrice, economyClassPrice);
         airline1.getFlights().add(flight);
 
         // Flight2
@@ -268,11 +268,20 @@ public class Data implements Serializable {
         duration = Duration.ofMinutes(120);
         firstClassPrice = new Price("20000");
         economyClassPrice = new Price("5000");
-        flight = new Flight(flightNumber, aircraft, departureDate, from, to, duration, firstClassPrice, economyClassPrice);
+        flight = new Flight(flightNumber, airline1, aircraft, departureDate, from, to, duration, firstClassPrice, economyClassPrice);
         airline1.getFlights().add(flight);
 
         /* Bookings */
-        // Booking 1 all first class seats
+        
+        // Booking 1 all first and economy class seats
+        flight = airline1.getFlights().getByFlightNumber("SL1");
+        passenger = airline1.getPassengers().getByName("Graham");
+        meal = airline1.getMeals().getFirstClassMeals().getByDescription("Mandarin");
+        for (Seat firstClassSeat : flight.getSeats()) {
+            airline1.getBookings().add(new Booking(flight, passenger, firstClassSeat, meal));
+        }
+
+        // Booking 2 all first class seats
         flight = airline1.getFlights().getByFlightNumber("LS1");
         passenger = airline1.getPassengers().getByName("Graham");
         meal = airline1.getMeals().getFirstClassMeals().getByDescription("Mandarin");
@@ -280,7 +289,7 @@ public class Data implements Serializable {
             airline1.getBookings().add(new Booking(flight, passenger, firstClassSeat, meal));
         }
 
-        // Booking 2
+        // Booking 3
         flight = airline1.getFlights().getByFlightNumber("LS1");
         passenger = airline1.getPassengers().getByName("Sten");
         Seat seat = flight.getSeats().getEconomyClassSeatsAvailable().get(0);
@@ -288,7 +297,7 @@ public class Data implements Serializable {
         Booking booking = new Booking(flight, passenger, seat, meal);
         airline1.getBookings().add(booking);
 
-        // Booking 3
+        // Booking 4
         flight = airline1.getFlights().getByFlightNumber("LS1");
         passenger = airline1.getPassengers().getByName("Anna");
         seat = flight.getSeats().getEconomyClassSeatsAvailable().get(0);

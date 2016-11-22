@@ -86,7 +86,7 @@ public class UserInterface {
 
     /**
      * Prints all the totals of the supplied {@link Bookings} list.
-     * 
+     *
      * @param bookings The {@link Bookings}
      */
     private static void printTotals(Bookings bookings) {
@@ -156,7 +156,6 @@ public class UserInterface {
                             seatType = getProductClass();
                             break;
                         }
-                        running = false;
                         return;
                     }
                     seat = firstClassSeats.get(0);
@@ -169,7 +168,6 @@ public class UserInterface {
                             seatType = getProductClass();
                             break;
                         }
-                        running = false;
                         return;
                     }
                     seat = economyClassSeats.get(0);
@@ -553,7 +551,7 @@ public class UserInterface {
             Price economyClassPrice = getPrice("Economy class price");
             requireGreaterOrEqual(economyClassPrice.getBigDecimal(), new BigDecimal("1.0"));
 
-            Flight flight = new Flight(flightNumber, aircraft, departureDateTime, from, to, duration, firstClassPrice, economyClassPrice);
+            Flight flight = new Flight(flightNumber, airline, aircraft, departureDateTime, from, to, duration, firstClassPrice, economyClassPrice);
             airline.getFlights().add(flight);
             printlnLineSpaced(flight.toString());
         } catch (NullPointerException | IllegalArgumentException | DateTimeParseException ex) {
@@ -602,7 +600,6 @@ public class UserInterface {
      * Economy action menu.
      */
     public static void economyAction() {
-        // TODO: Write the economy action menu and supporting code
         OptionMap optionMap = new OptionMap();
         optionMap.addBackAction();
         optionMap.addExitAction();

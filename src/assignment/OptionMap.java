@@ -27,15 +27,15 @@ import static assignment.GeneralUtils.println;
 import static assignment.GeneralUtils.requireNotEmpty;
 import static java.lang.System.exit;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
- * A {@link HashMap} using the string pattern for matching as the key value, and
- * {@link OptionPair} as the related value.
+ * A {@link LinkedHashMap} using the string pattern for matching as the key
+ * value, and {@link OptionPair} as the related value.
  *
  * @author Graham Fairweather
  */
-public final class OptionMap extends HashMap<String, OptionPair> {
+public final class OptionMap extends LinkedHashMap<String, OptionPair> {
 
     /**
      * For use with {@link #getMethod(java.lang.String)}.
