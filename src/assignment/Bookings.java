@@ -27,7 +27,9 @@ import static assignment.BookingStatusTypes.CONFIRMED;
 import static assignment.BookingStatusTypes.ClOSED;
 import static assignment.GeneralUtils.printlnLineSpaced;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Resizable-array implementation of the <tt>List</tt> interface for {@link
@@ -87,6 +89,47 @@ public class Bookings extends AbstractNoNullList<Booking> implements Serializabl
      */
     public final Bookings closed() {
         return new Bookings(filter(booking -> booking.getStatus() == ClOSED));
+    }
+
+    /**
+     * Takes a functional interface to map a {@link Booking} to a
+     * {@link BigDecimal} and then sums the values and returns a
+     * {@link BigDecimal}
+     *
+     * @param bdMapper Functional interface
+     * @return A {@link BigDecimal}
+     */
+    private BigDecimal sum(Function<Booking, BigDecimal> bdMapper) {
+        synchronized (this) {
+            return this.stream().map(bdMapper).reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+    }
+
+    /**
+     * Sum all the prices of the bookings.
+     *
+     * @return The total of all the booking prices
+     */
+    public final Price getPrice() {
+        return new Price(sum((Booking booking) -> booking.getPrice().getBigDecimal()));
+    }
+
+    /**
+     * Sum all the costs of the bookings.
+     *
+     * @return The total of all the booking prices
+     */
+    public final Price getCosts() {
+        return new Price(sum((Booking booking) -> booking.getCosts().getBigDecimal()));
+    }
+
+    /**
+     * Sum all the profit of the bookings.
+     *
+     * @return The total of all the booking profits
+     */
+    public final Price getProfit() {
+        return new Price(sum((Booking booking) -> booking.getProfit().getBigDecimal()));
     }
 
     /**

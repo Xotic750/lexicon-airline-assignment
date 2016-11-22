@@ -23,10 +23,10 @@
  */
 package assignment;
 
-import static assignment.ProductClassTypes.ECONOMY;
-import static assignment.ProductClassTypes.FIRST;
 import static assignment.GeneralUtils.println;
 import static assignment.GeneralUtils.requireNotEmpty;
+import static assignment.ProductClassTypes.ECONOMY;
+import static assignment.ProductClassTypes.FIRST;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -34,6 +34,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Extended {@link  AccountableObject} to hold flight information.
  *
  * @author Graham Fairweather
  */
@@ -50,6 +51,21 @@ public class Flight extends AccountableObject implements Serializable {
     private final Price economyClassPrice;
     private final AtomicReference<FlightStatusTypes> status;
     private final Seats seats;
+
+    /**
+     * Called during construction of a flight to initialise the seats as per the
+     * aircraft definition.
+     *
+     * @param flight The flight
+     * @param nextSeatNumber The next seat number to use during allocation
+     * @param productType The {@link ProductClassTypes}
+     */
+    private static int addSeats(Flight flight, int nextSeatNumber, ProductClassTypes productType) {
+        for (int index = 0; index < flight.aircraft.getFirstClassSeatCount(); index++) {
+            flight.seats.add(new Seat(flight.aircraft, nextSeatNumber++, productType));
+        }
+        return nextSeatNumber;
+    }
 
     /**
      * Allocates a <code>Flight</code> object and initialises it.
@@ -73,111 +89,117 @@ public class Flight extends AccountableObject implements Serializable {
         this.arrivalDateTime = departureDateTime.plus(duration);
         this.firstClassPrice = requireNonNull(firstClassPrice);
         this.economyClassPrice = requireNonNull(economyClassPrice);
-
         this.seats = new Seats();
-        int seatNumber = 1;
-        for (int index = 0; index < aircraft.getFirstClassSeatCount(); index++) {
-            Seat seat = new Seat(aircraft, seatNumber++, FIRST);
-            this.seats.add(seat);
-        }
-        for (int index = 0; index < aircraft.getEconomyClassSeatCount(); index++) {
-            Seat seat = new Seat(aircraft, seatNumber++, ECONOMY);
-            this.seats.add(seat);
-        }
+        int nextSeatNumber = 1;
+        nextSeatNumber = addSeats(this, nextSeatNumber, FIRST);
+        addSeats(this, nextSeatNumber, ECONOMY);
         this.status = new AtomicReference<>(FlightStatusTypes.OPEN);
     }
 
     /**
+     * Gets the flight number.
      *
-     * @return
+     * @return the flight number
      */
     public String getFlightNumber() {
         return flightNumber;
     }
 
     /**
+     * Gets the aircraft.
      *
-     * @return
+     * @return The aircraft
      */
     public Aircraft getAircraft() {
         return aircraft;
     }
 
     /**
+     * Gets the departure date and time.
      *
-     * @return
+     * @return The departure date and time
      */
-    public LocalDateTime getDepartureDate() {
+    public LocalDateTime getDepartureDateTime() {
         return departureDateTime;
     }
 
     /**
+     * Get the arrival date and time, calculated using the departure date and
+     * time plus the duration.
      *
-     * @return
+     * @return The arrival date and time
      */
     public LocalDateTime getArrivalDate() {
         return arrivalDateTime;
     }
 
     /**
+     * Get the departure airport.
      *
-     * @return
+     * @return The airport
      */
     public Airport getFrom() {
         return from;
     }
 
     /**
+     * Get the arrival airport.
      *
-     * @return
+     * @return The airport
      */
     public Airport getTo() {
         return to;
     }
 
     /**
+     * Get the duration of the flight.
      *
-     * @return
+     * @return The {@link Duration}
      */
     public Duration getDuration() {
         return duration;
     }
 
     /**
+     * Get the price of a first class seat.
      *
-     * @return
+     * @return The price
      */
     public Price getFirstClassPrice() {
         return firstClassPrice;
     }
 
     /**
+     * Get the price of an economy class seat.
      *
-     * @return
+     * @return The price
      */
     public Price getEconomyClassPrice() {
         return economyClassPrice;
     }
 
     /**
+     * Get the current status of the flight.
      *
-     * @return
+     * @return The {@link FlightStatusTypes}
      */
     public FlightStatusTypes getStatus() {
         return status.get();
     }
 
     /**
+     * Get the seat list.
      *
-     * @return
+     * @return The seats
      */
     public Seats getSeats() {
         return seats;
     }
 
     /**
+     * Set the current flight status.
      *
-     * @param status
+     * @param status The {@link FlightStatusTypes}
      */
     public void setStatus(FlightStatusTypes status) {
         this.status.set(requireNonNull(status));

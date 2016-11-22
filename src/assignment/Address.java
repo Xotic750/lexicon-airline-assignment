@@ -28,7 +28,8 @@ import java.io.Serializable;
 import static assignment.GeneralUtils.requireNotEmpty;
 
 /**
- *
+ * Extended {@link  AccountableObject} to hold address information.
+ * 
  * @author Graham Fairweather
  */
 public class Address extends AccountableObject implements Serializable {

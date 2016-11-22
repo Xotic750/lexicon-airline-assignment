@@ -23,7 +23,9 @@
  */
 package assignment;
 
+import static assignment.GeneralUtils.requireNotEmpty;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import javafx.util.Pair;
 
 /**
@@ -43,6 +45,7 @@ public final class OptionPair extends Pair<String, Method> {
      */
     private static Method getMethod(String methodName) {
         try {
+            requireNotEmpty(methodName);
             return UserInterface.class.getDeclaredMethod(methodName);
         } catch (NoSuchMethodException | SecurityException ex) {
             throw new ElementNotFoundException();
@@ -56,7 +59,7 @@ public final class OptionPair extends Pair<String, Method> {
      * @param methodName The static method of {@link UserInterface} to call
      */
     public OptionPair(String key, String methodName) {
-        super(key, getMethod(methodName));
+        this(requireNotEmpty(key), getMethod(methodName));
     }
 
     /**
@@ -66,7 +69,7 @@ public final class OptionPair extends Pair<String, Method> {
      * @param method The static method to call
      */
     public OptionPair(String key, Method method) {
-        super(key, method);
+        super(requireNotEmpty(key), Objects.requireNonNull(method));
     }
 
 }

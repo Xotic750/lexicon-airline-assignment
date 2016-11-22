@@ -263,6 +263,26 @@ public class UserInterfaceUtils {
         return true;
     }
 
+    /**
+     * Get a yes or no confirmation.
+     *
+     * @param text The map of the option for this actions menu
+     * @return {@code true} if "(y)es", {@code false} if "(n)o"
+     */
+    public static boolean confirmYesNo(String text) {
+        while (true) {
+            switch (getInputLowerCase(text)) {
+                case "y":
+                case "yes":
+                    return true;
+                case "n":
+                case "no":
+                    return false;
+                default:
+            }
+        }
+    }
+
     private UserInterfaceUtils() {
     }
 

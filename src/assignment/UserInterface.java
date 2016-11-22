@@ -32,6 +32,7 @@ import static assignment.GeneralUtils.requireGreaterOrEqual;
 import static assignment.ProductClassTypes.ECONOMY;
 import static assignment.ProductClassTypes.FIRST;
 import static assignment.UserInterface.airportsAction;
+import static assignment.UserInterfaceUtils.confirmYesNo;
 import static assignment.UserInterfaceUtils.getGender;
 import static assignment.UserInterfaceUtils.getInput;
 import static assignment.UserInterfaceUtils.getInputInt;
@@ -47,6 +48,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -84,17 +86,43 @@ public class UserInterface {
     }
 
     /**
+     * Prints all the totals of the supplied {@link Bookings} list.
+     * 
+     * @param bookings The {@link Bookings}
+     */
+    private static void printTotals(Bookings bookings) {
+        println();
+        println("Bookings price: " + bookings.getPrice().getValue());
+        println("Bookings costs: " + bookings.getCosts().getValue());
+        println("Bookings profit: " + bookings.getProfit().getValue());
+        println();
+    }
+
+    /**
+     * List the bookings of the currently chosen airline.
+     */
+    public static void listBookings() {
+        Bookings bookings = airline.getBookings();
+        bookings.print();
+        printTotals(bookings);
+    }
+
+    /**
      * List the completed bookings of the currently chosen airline.
      */
-    public static void listBookingCompleted() {
-        airline.getBookings().closed().print();
+    public static void listBookingsCompleted() {
+        Bookings bookings = airline.getBookings().closed();
+        bookings.print();
+        printTotals(bookings);
     }
 
     /**
      * List the confirmed bookings of the currently chosen airline.
      */
     public static void listBookingsConfirmed() {
-        airline.getBookings().confirmed().print();
+        Bookings bookings = airline.getBookings().confirmed();
+        bookings.print();
+        printTotals(bookings);
     }
 
     /**
@@ -107,6 +135,7 @@ public class UserInterface {
         } catch (RuntimeException ex) {
             return;
         }
+
         Seats firstClassSeats = flight.getSeats().getFirstClassSeatsAvailable();
         println("First class seats: " + firstClassSeats.size());
         Seats economyClassSeats = flight.getSeats().getEconomyClassSeatsAvailable();
@@ -115,33 +144,50 @@ public class UserInterface {
             printlnLineSpaced("Sorry, no seats available");
             return;
         }
+
+        Seat seat = null;
         ProductClassTypes seatType = getProductClass();
-        Seats seats;
-        switch (seatType) {
-            case FIRST:
-                if (firstClassSeats.size() <= 0) {
-                    printlnLineSpaced("Sorry, no first class seats available");
-                    return;
-                }
-                seats = firstClassSeats;
-                break;
-            case ECONOMY:
-                if (economyClassSeats.size() <= 0) {
-                    printlnLineSpaced("Sorry, no economy seats available");
-                    return;
-                }
-                seats = economyClassSeats;
-                break;
-            default:
-                throw new RuntimeException("PLONKER ALERT!");
+        boolean running = true;
+        while (running) {
+            switch (seatType) {
+                case FIRST:
+                    if (firstClassSeats.size() <= 0) {
+                        printlnLineSpaced("Sorry, no first class seats available");
+                        if (confirmYesNo("Choose another seating class, (y)es or (n]o?")) {
+                            seatType = getProductClass();
+                            break;
+                        }
+                        running = false;
+                        return;
+                    }
+                    seat = firstClassSeats.get(0);
+                    running = false;
+                    break;
+                case ECONOMY:
+                    if (economyClassSeats.size() <= 0) {
+                        printlnLineSpaced("Sorry, no economy seats available");
+                        if (confirmYesNo("Choose another seating class, (y)es or (n]o?")) {
+                            seatType = getProductClass();
+                            break;
+                        }
+                        running = false;
+                        return;
+                    }
+                    seat = economyClassSeats.get(0);
+                    running = false;
+                    break;
+                default:
+                    throw new RuntimeException("missing ProductClassTypes");
+            }
         }
-        Seat seat = seats.get(0);
+
         Passenger passenger;
         try {
             passenger = choosePassengerByName();
         } catch (RuntimeException ex) {
             return;
         }
+
         Meal meal;
         switch (seatType) {
             case FIRST:
@@ -159,12 +205,12 @@ public class UserInterface {
                 }
                 break;
             default:
-                throw new RuntimeException("PLONKER ALERT!");
+                throw new RuntimeException("missing ProductClassTypes");
         }
 
         Booking booking = new Booking(flight, passenger, seat, meal);
         airline.getBookings().add(booking);
-        printlnLineSpaced("Booking: " + booking);
+        booking.print();
     }
 
     /**
@@ -249,9 +295,10 @@ public class UserInterface {
      */
     public static void bookingsAction() {
         OptionMap optionMap = new OptionMap();
-        optionMap.add("0", "List completed bookings", "listBookingCompleted");
-        optionMap.add("1", "List confirmed bookings", "listBookingsConfirmed");
-        optionMap.add("2", "Make bookings", "makeBooking");
+        optionMap.add("0", "List bookings", "listBookings");
+        optionMap.add("1", "List completed bookings", "listBookingsCompleted");
+        optionMap.add("2", "List confirmed bookings", "listBookingsConfirmed");
+        optionMap.add("3", "Make bookings", "makeBooking");
         optionMap.addBackAction();
         optionMap.addExitAction();
         if (runOptionMenus(optionMap)) {
@@ -261,7 +308,7 @@ public class UserInterface {
 
     /**
      * Choose a passenger by first matching name.
-     * 
+     *
      * @return The passenger
      * @throws ElementNotFoundException If passenger not found
      */
@@ -334,7 +381,7 @@ public class UserInterface {
 
     /**
      * Choose an aircraft by the first matching name.
-     * 
+     *
      * @return The aircraft
      * @throws ElementNotFoundException If no aircraft found
      */

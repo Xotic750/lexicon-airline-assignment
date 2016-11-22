@@ -24,14 +24,16 @@
 package assignment;
 
 import static assignment.BookingStatusTypes.CONFIRMED;
-import static assignment.SeatsStatusTypes.RESERVED;
 import static assignment.GeneralUtils.println;
+import static assignment.SeatsStatusTypes.RESERVED;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import static java.util.Objects.requireNonNull;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Extended {@link  AccountableObject} to hold booking information.
  *
  * @author Graham Fairweather
  */
@@ -41,16 +43,18 @@ public class Booking extends AccountableObject implements Serializable {
     private final Passenger passenger;
     private final Seat seat;
     private final Meal meal;
-    private final Price totalPrice;
+    private final Price price;
+    private final Price costs;
+    private final Price profit;
     private AtomicReference<BookingStatusTypes> status;
 
     /**
-     * Allocates an <code>Booking</code> object and initialises it.
+     * Allocates a <code>Booking</code> object and initialises it.
      *
-     * @param flight
-     * @param passenger
-     * @param seat
-     * @param meal
+     * @param flight The {@link Flight}
+     * @param passenger The {@link Passenger}
+     * @param seat The {@link Seat}
+     * @param meal The {@link Meal}
      */
     public Booking(Flight flight, Passenger passenger, Seat seat, Meal meal) {
         this.flight = requireNonNull(flight);
@@ -66,73 +70,106 @@ public class Booking extends AccountableObject implements Serializable {
                 flightPrice = flight.getEconomyClassPrice();
                 break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("missing BookingStatusTypes");
         }
         BigDecimal bdFlightPrice = new BigDecimal(flightPrice.getValue());
         BigDecimal bdMealPrice = new BigDecimal(meal.getPrice().getValue());
-        this.totalPrice = new Price(bdFlightPrice.add(bdMealPrice));
+        BigDecimal bdTotal = bdFlightPrice.add(bdMealPrice);
+        BigDecimal bdCost = bdTotal.multiply(new BigDecimal("0.7")).setScale(2, RoundingMode.UP);
+        BigDecimal bdProfit = bdTotal.subtract(bdCost);
+        if (bdCost.add(bdProfit).compareTo(bdTotal) != 0) {
+            throw new ArithmeticException("rounding error");
+        }
+        this.price = new Price(bdTotal);
+        this.costs = new Price(bdCost);
+        this.profit = new Price(bdProfit);
         if (seat.getStatus() == RESERVED) {
-            throw new RuntimeException();
+            throw new IllegalArgumentException("seat is already reserved");
         }
         seat.setStatus(RESERVED);
         this.status = new AtomicReference<>(CONFIRMED);
     }
 
     /**
+     * Gets the seat that was reserved for this booking.
      *
-     * @return
+     * @return The seat
      */
     public Seat getSeat() {
         return seat;
     }
 
     /**
+     * Gets the flight.
      *
-     * @return
+     * @return The flight
      */
     public final Flight getFlight() {
         return flight;
     }
 
     /**
+     * Gets the passenger.
      *
-     * @return
+     * @return The passenger
      */
     public final Passenger getPassenger() {
         return passenger;
     }
 
     /**
+     * Get the total price of the booking.
      *
-     * @return
+     * @return The total price
      */
     public final Price getPrice() {
-        return totalPrice;
+        return price;
     }
 
     /**
+     * Gets the meal chosen.
      *
-     * @return
+     * @return The meal
      */
     public final Meal getMeal() {
         return meal;
     }
 
     /**
+     * Gets the booking status.
      *
-     * @return
+     * @return The status.
      */
     public final BookingStatusTypes getStatus() {
         return status.get();
     }
 
     /**
+     * Sets the status of this booking.
      *
-     * @param status
+     * @param status A {@link BookingStatusTypes}
      */
     public final void setStatus(BookingStatusTypes status) {
         this.status.set(status);
         setModified();
+    }
+
+    /**
+     * Get the operating cost portion of the total price.
+     *
+     * @return The cost
+     */
+    public Price getCosts() {
+        return costs;
+    }
+
+    /**
+     * Get the operating profit portion of the total price.
+     *
+     * @return The cost
+     */
+    public Price getProfit() {
+        return profit;
     }
 
     /**
@@ -145,13 +182,15 @@ public class Booking extends AccountableObject implements Serializable {
         passenger.print();
         seat.print();
         meal.print();
-        println("Booking total price: " + totalPrice.getValue());
         println("Booking status: " + status);
+        println("Booking total price: " + price.getValue());
+        println("Booking cost: " + costs.getValue());
+        println("Booking profit: " + profit.getValue());
     }
 
     @Override
     public String toString() {
-        return "Booking{" + "flight=" + flight + ", passenger=" + passenger + ", meal=" + meal + ", price=" + totalPrice + ", status=" + status + "} " + super.toString();
+        return "Booking{" + "flight=" + flight + ", passenger=" + passenger + ", seat=" + seat + ", meal=" + meal + ", price=" + price + ", costs=" + costs + ", profit=" + profit + ", status=" + status + "} " + super.toString();
     }
 
 }

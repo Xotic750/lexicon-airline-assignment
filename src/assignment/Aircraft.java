@@ -30,7 +30,8 @@ import java.io.Serializable;
 import static java.util.Objects.requireNonNull;
 
 /**
- *
+ * Extended {@link  AccountableObject} to hold aircraft information.
+ * 
  * @author Graham Fairweather
  */
 public abstract class Aircraft extends AccountableObject implements Serializable {

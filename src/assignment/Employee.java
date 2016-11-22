@@ -34,6 +34,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Extended {@link Person} to hold employee information.
  *
  * @author Graham Fairweather
  */

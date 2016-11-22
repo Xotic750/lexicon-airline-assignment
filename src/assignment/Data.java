@@ -37,6 +37,8 @@ import static java.time.Month.DECEMBER;
 import static java.time.Month.MAY;
 
 /**
+ * This would be where we access the database. But, we have hard coded objects
+ * and information.
  *
  * @author Graham Fairweather
  */
@@ -136,28 +138,28 @@ public class Data implements Serializable {
         // Meal 1
         ProductClassTypes productType = ECONOMY;
         String description = "Cheese Roll plus Coke.";
-        Price price = new Price("1.5");
+        Price price = new Price("150.5");
         Meal meal = new Meal(productType, description, price);
         airline1.getMeals().add(meal);
 
         // Meal 2
         productType = ECONOMY;
         description = "Ham Roll plus Coke.";
-        price = new Price("1.5");
+        price = new Price("170.5");
         meal = new Meal(productType, description, price);
         airline1.getMeals().add(meal);
 
         // Meal 3
         productType = FIRST;
         description = "Koura-yaki plus Hiedsieck 1907 Diamant Bleu cuvee.";
-        price = new Price("19.99");
+        price = new Price("1999.99");
         meal = new Meal(productType, description, price);
         airline1.getMeals().add(meal);
 
         // Meal 4
         productType = FIRST;
         description = "Mandarin Oriental Roast Chicken plus Hiedsieck 1907 Diamant Bleu cuvee.";
-        price = new Price("19.99");
+        price = new Price("2499.99");
         meal = new Meal(productType, description, price);
         airline1.getMeals().add(meal);
 
@@ -265,25 +267,25 @@ public class Data implements Serializable {
         to = AIRPORTS.getByName("Stockholm");
         duration = Duration.ofMinutes(120);
         firstClassPrice = new Price("20000");
-        economyClassPrice = new Price("50000");
+        economyClassPrice = new Price("5000");
         flight = new Flight(flightNumber, aircraft, departureDate, from, to, duration, firstClassPrice, economyClassPrice);
         airline1.getFlights().add(flight);
 
         /* Bookings */
-        // Booking 1
+        // Booking 1 all first class seats
         flight = airline1.getFlights().getByFlightNumber("LS1");
         passenger = airline1.getPassengers().getByName("Graham");
-        Seat seat = flight.getSeats().getFirstClassSeatsAvailable().get(0);
         meal = airline1.getMeals().getFirstClassMeals().getByDescription("Mandarin");
-        Booking booking = new Booking(flight, passenger, seat, meal);
-        airline1.getBookings().add(booking);
+        for (Seat firstClassSeat : flight.getSeats().getFirstClassSeatsAvailable()) {
+            airline1.getBookings().add(new Booking(flight, passenger, firstClassSeat, meal));
+        }
 
         // Booking 2
         flight = airline1.getFlights().getByFlightNumber("LS1");
         passenger = airline1.getPassengers().getByName("Sten");
-        seat = flight.getSeats().getEconomyClassSeatsAvailable().get(0);
+        Seat seat = flight.getSeats().getEconomyClassSeatsAvailable().get(0);
         meal = airline1.getMeals().getEconomyClassMeals().getByDescription("Ham");
-        booking = new Booking(flight, passenger, seat, meal);
+        Booking booking = new Booking(flight, passenger, seat, meal);
         airline1.getBookings().add(booking);
 
         // Booking 3

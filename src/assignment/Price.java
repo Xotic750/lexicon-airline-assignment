@@ -85,7 +85,7 @@ public class Price extends AccountableObject implements Serializable {
     public final BigDecimal getBigDecimal() {
         return new BigDecimal(price);
     }
-
+    
     /**
      *
      * @return

@@ -24,6 +24,7 @@
 package assignment;
 
 import static assignment.GeneralUtils.println;
+import static assignment.GeneralUtils.requireNotEmpty;
 import static java.lang.System.exit;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ public final class OptionMap extends HashMap<String, OptionPair> {
      */
     public static Method getMethod(String methodName) {
         try {
+            requireNotEmpty(methodName);
             return OptionMap.class.getDeclaredMethod(methodName);
         } catch (NoSuchMethodException | SecurityException ex) {
             throw new ElementNotFoundException();
@@ -92,7 +94,7 @@ public final class OptionMap extends HashMap<String, OptionPair> {
      * @param methodName The static method of {@link UserInterface} to call
      */
     public final void add(String pattern, String message, String methodName) {
-        this.put(pattern, new OptionPair(message, methodName));
+        this.put(requireNotEmpty(pattern), new OptionPair(message, methodName));
     }
 
 }
