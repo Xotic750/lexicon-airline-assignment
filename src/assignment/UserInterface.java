@@ -186,7 +186,7 @@ public class UserInterface {
         }
 
         Meal meal;
-        if (confirmYesNo("Do you want a mean? (y)es or (n)o")) {
+        if (confirmYesNo("Do you want a meal? (y)es or (n)o")) {
             switch (seatType) {
                 case FIRST:
                     try {

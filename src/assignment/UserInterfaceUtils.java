@@ -226,18 +226,15 @@ public class UserInterfaceUtils {
      * @throws IllegalArgumentException if option is invalid
      */
     public static ProductClassTypes getProductClass() {
-        ProductClassTypes productType;
-        switch (getInputLowerCase("Class (F)irst or (E)conomy")) {
-            case "f":
-                productType = FIRST;
-                break;
-            case "e":
-                productType = ECONOMY;
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid option");
+        while (true) {
+            switch (getInputLowerCase("Class (F)irst or (E)conomy")) {
+                case "f":
+                    return FIRST;
+                case "e":
+                    return ECONOMY;
+                default:
+            }
         }
-        return productType;
     }
 
     /**
