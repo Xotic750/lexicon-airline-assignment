@@ -224,7 +224,7 @@ public class UserInterface {
     }
 
     /**
-     * Get an first class meal by first matching description.
+     * Get a first class meal by first matching description.
      *
      * @return The meal
      * @throws ElementNotFoundException If no meal found
@@ -273,6 +273,44 @@ public class UserInterface {
         }
         printlnLineSpaced("Meal: " + meal.getDescription());
         return meal;
+    }
+
+    /**
+     * Choose a flight by flight number.
+     *
+     * @return The first matching open flight
+     * @throws ElementNotFoundException If no flight found
+     */
+    public static Flight chooseFlight() throws ElementNotFoundException {
+        println();
+        airline.getFlights().print();
+        String data = getInput("Flight number");
+        Flight flight;
+        try {
+            flight = airline.getFlights().getByFlightNumberIgnoreCase(data);
+            requireElementFound(flight);
+        } catch (ElementNotFoundException ex) {
+            printlnLineSpaced("Flight not found: " + data);
+            throw ex;
+        } catch (IllegalArgumentException ex) {
+            printlnLineSpaced(ex.getMessage() + ": " + data);
+            throw ex;
+        }
+        printlnLineSpaced("Flight: " + flight.getFlightNumber());
+        return flight;
+    }
+
+    /**
+     * Choose a flight by flight number and print the operating totals.
+     */
+    public static void printFlightTotals() {
+        try {
+            Flight flight = chooseFlight();
+            Bookings bookings = airline.getBookings().getBookingsByFlightNumber(flight.getFlightNumber());
+            printTotals(bookings);
+        } catch (ElementNotFoundException | IllegalArgumentException ex) {
+            // Do nothing
+        }
     }
 
     /**
@@ -602,6 +640,7 @@ public class UserInterface {
         optionMap.add("1", "List departed flights", "listFlightsDeparted");
         optionMap.add("2", "List open flights", "listFlightsOpen");
         optionMap.add("3", "Add flight", "addFlight");
+        optionMap.add("4", "Print flight", "printFlightTotals");
         optionMap.addBackAction();
         optionMap.addExitAction();
         if (runOptionMenus(optionMap)) {

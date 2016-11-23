@@ -72,6 +72,16 @@ public class Bookings extends AbstractNoNullList<Booking> implements Serializabl
     }
 
     /**
+     * Get a {@code Bookings} list of {code Booking} objects that match the
+     * flight name.
+     *
+     * @return A {@code Bookings} list
+     */
+    public final Bookings getBookingsByFlightNumber(String flightNumber) {
+        return new Bookings(filter(booking -> booking.getFlight().getFlightNumber().equals(flightNumber)));
+    }
+
+    /**
      * Get a {@code Bookings} list of {code Booking} objects with the status of
      * "CLOSED".
      *
