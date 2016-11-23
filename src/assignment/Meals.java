@@ -41,6 +41,22 @@ import java.util.Collection;
  */
 public class Meals extends AbstractNoNullList<Meal> implements Serializable {
 
+    private static void noMeals(Meals meals) {
+        // Meal 0
+        ProductClassTypes productType = ECONOMY;
+        String description = "None";
+        Price price = new Price("0");
+        Meal meal = new Meal(productType, description, price);
+        meals.add(meal);
+
+        // Meal 1
+        productType = FIRST;
+        description = "None.";
+        price = new Price("0");
+        meal = new Meal(productType, description, price);
+        meals.add(meal);
+    }
+
     /**
      * Constructs an empty list with an initial capacity of ten.
      */
@@ -57,6 +73,8 @@ public class Meals extends AbstractNoNullList<Meal> implements Serializable {
      */
     public Meals(int initialCapacity) {
         super(initialCapacity);
+        Meals meals = this;
+        noMeals(meals);
     }
 
     /**
@@ -68,6 +86,8 @@ public class Meals extends AbstractNoNullList<Meal> implements Serializable {
      */
     public Meals(Collection<? extends Meal> c) {
         super(c);
+        Meals meals = this;
+        noMeals(meals);
     }
 
     /**

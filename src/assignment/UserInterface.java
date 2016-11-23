@@ -186,23 +186,36 @@ public class UserInterface {
         }
 
         Meal meal;
-        switch (seatType) {
-            case FIRST:
-                try {
-                    meal = chooseFirstClassMeal();
-                } catch (RuntimeException ex) {
-                    return;
-                }
-                break;
-            case ECONOMY:
-                try {
-                    meal = chooseEconomyClassMeal();
-                } catch (RuntimeException ex) {
-                    return;
-                }
-                break;
-            default:
-                throw new RuntimeException("missing ProductClassTypes");
+        if (confirmYesNo("Do you want a mean? (y)es or (n)o")) {
+            switch (seatType) {
+                case FIRST:
+                    try {
+                        meal = chooseFirstClassMeal();
+                    } catch (RuntimeException ex) {
+                        return;
+                    }
+                    break;
+                case ECONOMY:
+                    try {
+                        meal = chooseEconomyClassMeal();
+                    } catch (RuntimeException ex) {
+                        return;
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("missing ProductClassTypes");
+            }
+        } else {
+            switch (seatType) {
+                case FIRST:
+                    meal = airline.getMeals().getFirstClassMeals().getByDescriptionIgnoreCase("none");
+                    break;
+                case ECONOMY:
+                    meal = airline.getMeals().getEconomyClassMeals().getByDescriptionIgnoreCase("none");
+                    break;
+                default:
+                    throw new RuntimeException("missing ProductClassTypes");
+            }
         }
 
         Booking booking = new Booking(flight, passenger, seat, meal);

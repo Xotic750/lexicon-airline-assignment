@@ -272,7 +272,6 @@ public class Data implements Serializable {
         airline1.getFlights().add(flight);
 
         /* Bookings */
-        
         // Booking 1 all first and economy class seats
         flight = airline1.getFlights().getByFlightNumber("SL1");
         passenger = airline1.getPassengers().getByName("Graham");
