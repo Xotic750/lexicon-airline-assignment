@@ -46,7 +46,7 @@ public class Booking extends AccountableObject implements Serializable {
     private final Price price;
     private final Price costs;
     private final Price profit;
-    private AtomicReference<BookingStatusTypes> status;
+    private final AtomicReference<BookingStatusTypes> status;
 
     /**
      * Allocates a <code>Booking</code> object and initialises it.
